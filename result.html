@@ -32,8 +32,8 @@
             border-bottom: 1px solid #ddd;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Ensures content is spaced out */
-            align-items: flex-start; /* Aligns content to the left */
+            justify-content: space-between;
+            align-items: flex-start;
         }
 
         #userList li:last-child {
@@ -66,8 +66,8 @@
             padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
-            margin-top: 10px; /* Adds space above the button */
-            align-self: center; /* Center the button horizontally */
+            margin-top: 10px;
+            align-self: center;
         }
 
         .delete-button:hover {
@@ -76,7 +76,8 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const app = initializeApp({
             apiKey: "AIzaSyDUPrrqrwxKWUTN1MD8gFBZrWVceem_akg",
@@ -90,6 +91,19 @@
         });
 
         const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Đăng nhập (thay đổi thông tin đăng nhập nếu cần)
+        const email = "user@example.com"; // Replace with user email
+        const password = "password123"; // Replace with user password
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then(userCredential => {
+                fetchUsers();
+            })
+            .catch(error => {
+                console.error("Lỗi khi đăng nhập: ", error);
+            });
 
         // Lấy danh sách thành viên từ Firestore
         async function fetchUsers() {
@@ -122,7 +136,7 @@
             userCountElement.textContent = `Số thành viên đã nhập: ${userCount}`;
         }
 
-        // Hàm xóa thành viên
+        // Hàm xóa thành viên dựa trên ID
         async function deleteUser(userId) {
             const userRef = doc(db, "users", userId);
             try {
@@ -133,9 +147,13 @@
             }
         }
 
-        // Gọi hàm để hiển thị thành viên
-        fetchUsers().catch(error => {
-            console.error("Lỗi khi lấy danh sách thành viên: ", error);
+        // Theo dõi trạng thái xác thực
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                fetchUsers(); // Fetch users if authenticated
+            } else {
+                console.log("User is not logged in.");
+            }
         });
     </script>
 </head>

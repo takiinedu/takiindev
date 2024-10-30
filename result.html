@@ -126,7 +126,7 @@
                         <div class="user-info"><span class="label">Mã sv:</span> ${userData.studentId}</div>
                         <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
                     </div>
-                    <button class="delete-button" onclick="deleteUser('${doc.id}')">Xóa</button>
+                    <button class="delete-button" onclick="deleteUser('${doc.id}', '${userData.studentId}')">Xóa</button>
                 `;
                 userListElement.appendChild(listItem);
                 userCount++;
@@ -137,11 +137,12 @@
         }
 
         // Hàm xóa thành viên dựa trên ID
-        async function deleteUser(userId) {
-            const userRef = doc(db, "users", userId);
+        async function deleteUser(docId, studentId) {
+            const userRef = doc(db, "users", docId);
             try {
                 await deleteDoc(userRef);
                 fetchUsers(); // Refresh the user list after deletion
+                console.log(`Đã xóa thành viên có studentId: ${studentId}`);
             } catch (error) {
                 console.error("Lỗi khi xóa thành viên: ", error);
             }

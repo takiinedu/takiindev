@@ -47,6 +47,13 @@
         .label {
             font-weight: bold;
         }
+
+        #userCount {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -68,8 +75,11 @@
         // Lấy danh sách người dùng từ Firestore
         async function fetchUsers() {
             const userListElement = document.getElementById("userList");
+            const userCountElement = document.getElementById("userCount");
             const userCollection = collection(db, "users");
             const userSnapshot = await getDocs(userCollection);
+
+            let userCount = 0;
 
             userSnapshot.forEach(doc => {
                 const userData = doc.data();
@@ -82,7 +92,11 @@
                     <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
                 `;
                 userListElement.appendChild(listItem);
+                userCount++;
             });
+
+            // Cập nhật số lượng người dùng
+            userCountElement.textContent = `Số người dùng đã nhập: ${userCount}`;
         }
 
         // Gọi hàm để hiển thị người dùng
@@ -93,6 +107,7 @@
 </head>
 <body>
     <h1>Danh sách người dùng</h1>
+    <div id="userCount">Số người dùng đã nhập: 0</div>
     <ul id="userList"></ul>
 </body>
 </html>

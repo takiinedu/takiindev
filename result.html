@@ -54,10 +54,19 @@
             font-size: 18px;
             color: #555;
         }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         const app = initializeApp({
             apiKey: "AIzaSyDUPrrqrwxKWUTN1MD8gFBZrWVceem_akg",
@@ -72,7 +81,6 @@
 
         const db = getFirestore(app);
 
-        // Lấy danh sách người dùng từ Firestore
         async function fetchUsers() {
             const userListElement = document.getElementById("userList");
             const userCountElement = document.getElementById("userCount");
@@ -80,6 +88,7 @@
             const userSnapshot = await getDocs(userCollection);
 
             let userCount = 0;
+            userListElement.innerHTML = ''; // Xóa danh sách hiện tại
 
             userSnapshot.forEach(doc => {
                 const userData = doc.data();
@@ -90,16 +99,26 @@
                     <div class="user-info"><span class="label">Email:</span> ${userData.email}</div>
                     <div class="user-info"><span class="label">Mã sv:</span> ${userData.studentId}</div>
                     <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
+                    <button class="delete-btn" onclick="deleteUser('${doc.id}')">Xóa</button>
                 `;
                 userListElement.appendChild(listItem);
                 userCount++;
             });
 
-            // Cập nhật số lượng người dùng
             userCountElement.textContent = `Số thành viên đã nhập: ${userCount}`;
         }
 
-        // Gọi hàm để hiển thị người dùng
+        // Định nghĩa hàm deleteUser ở cấp độ toàn cục
+        window.deleteUser = async function(userId) {
+            const userDoc = doc(db, "users", userId);
+            try {
+                await deleteDoc(userDoc);
+                fetchUsers(); // Cập nhật danh sách người dùng
+            } catch (error) {
+                console.error("Lỗi khi xóa người dùng: ", error);
+            }
+        };
+
         fetchUsers().catch(error => {
             console.error("Lỗi khi lấy danh sách thành viên: ", error);
         });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách thành viên</title>
+    <title>Danh sách người dùng</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,10 +30,6 @@
         #userList li {
             padding: 15px;
             border-bottom: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-start;
         }
 
         #userList li:last-child {
@@ -58,26 +54,10 @@
             font-size: 18px;
             color: #555;
         }
-
-        .delete-button {
-            background-color: #ff4d4d;
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            align-self: center;
-        }
-
-        .delete-button:hover {
-            background-color: #ff1a1a;
-        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         const app = initializeApp({
             apiKey: "AIzaSyDUPrrqrwxKWUTN1MD8gFBZrWVceem_akg",
@@ -91,21 +71,8 @@
         });
 
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
-        // Đăng nhập (thay đổi thông tin đăng nhập nếu cần)
-        const email = "user@example.com"; // Replace with user email
-        const password = "password123"; // Replace with user password
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then(userCredential => {
-                fetchUsers();
-            })
-            .catch(error => {
-                console.error("Lỗi khi đăng nhập: ", error);
-            });
-
-        // Lấy danh sách thành viên từ Firestore
+        // Lấy danh sách người dùng từ Firestore
         async function fetchUsers() {
             const userListElement = document.getElementById("userList");
             const userCountElement = document.getElementById("userCount");
@@ -113,48 +80,28 @@
             const userSnapshot = await getDocs(userCollection);
 
             let userCount = 0;
-            userListElement.innerHTML = ''; // Clear existing list
 
             userSnapshot.forEach(doc => {
                 const userData = doc.data();
                 const listItem = document.createElement("li");
 
                 listItem.innerHTML = `
-                    <div>
-                        <div class="user-info"><span class="label">Họ và tên:</span> ${userData.fullname}</div>
-                        <div class="user-info"><span class="label">Email:</span> ${userData.email}</div>
-                        <div class="user-info"><span class="label">Mã sv:</span> ${userData.studentId}</div>
-                        <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
-                    </div>
-                    <button class="delete-button" onclick="deleteUser('${doc.id}', '${userData.studentId}')">Xóa</button>
+                    <div class="user-info"><span class="label">Họ và tên:</span> ${userData.fullname}</div>
+                    <div class="user-info"><span class="label">Email:</span> ${userData.email}</div>
+                    <div class="user-info"><span class="label">Mã sv:</span> ${userData.studentId}</div>
+                    <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
                 `;
                 userListElement.appendChild(listItem);
                 userCount++;
             });
 
-            // Cập nhật số lượng thành viên
+            // Cập nhật số lượng người dùng
             userCountElement.textContent = `Số thành viên đã nhập: ${userCount}`;
         }
 
-        // Hàm xóa thành viên dựa trên ID
-        async function deleteUser(docId, studentId) {
-            const userRef = doc(db, "users", docId);
-            try {
-                await deleteDoc(userRef);
-                fetchUsers(); // Refresh the user list after deletion
-                console.log(`Đã xóa thành viên có studentId: ${studentId}`);
-            } catch (error) {
-                console.error("Lỗi khi xóa thành viên: ", error);
-            }
-        }
-
-        // Theo dõi trạng thái xác thực
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                fetchUsers(); // Fetch users if authenticated
-            } else {
-                console.log("User is not logged in.");
-            }
+        // Gọi hàm để hiển thị người dùng
+        fetchUsers().catch(error => {
+            console.error("Lỗi khi lấy danh sách thành viên: ", error);
         });
     </script>
 </head>

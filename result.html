@@ -63,6 +63,35 @@
             cursor: pointer;
             border-radius: 5px;
         }
+
+        .confirm-delete {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #fafafa;
+            border-radius: 5px;
+        }
+
+        .confirm-delete input {
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .confirm-delete button {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .confirm-delete button:hover {
+            background-color: darkgreen;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -81,7 +110,6 @@
 
         const db = getFirestore(app);
 
-        // Hàm hiển thị danh sách người dùng
         function displayUsers(userSnapshot) {
             const userListElement = document.getElementById("userList");
             const userCountElement = document.getElementById("userCount");
@@ -97,7 +125,11 @@
                     <div class="user-info"><span class="label">Email:</span> ${userData.email}</div>
                     <div class="user-info"><span class="label">Mã sv:</span> ${userData.studentId}</div>
                     <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
-                    <button class="delete-btn" onclick="deleteUser('${doc.id}')">Xóa</button>
+                    <button class="delete-btn" onclick="showConfirmDelete('${doc.id}')">Xóa</button>
+                    <div class="confirm-delete" id="confirm-${doc.id}">
+                        <input type="text" placeholder="Nhập 'remove' để xác nhận" id="input-${doc.id}">
+                        <button onclick="deleteUser('${doc.id}')">Xác nhận</button>
+                    </div>
                 `;
                 userListElement.appendChild(listItem);
                 userCount++;
@@ -111,13 +143,25 @@
             displayUsers(snapshot.docs);
         });
 
-        // Định nghĩa hàm deleteUser ở cấp độ toàn cục
+        // Hiển thị ô xác nhận xóa
+        window.showConfirmDelete = function(userId) {
+            const confirmDeleteDiv = document.getElementById(`confirm-${userId}`);
+            confirmDeleteDiv.style.display = confirmDeleteDiv.style.display === 'none' || confirmDeleteDiv.style.display === '' ? 'flex' : 'none';
+        };
+
+        // Xóa người dùng
         window.deleteUser = async function(userId) {
-            const userDoc = doc(db, "users", userId);
-            try {
-                await deleteDoc(userDoc);
-            } catch (error) {
-                console.error("Lỗi khi xóa người dùng: ", error);
+            const inputElement = document.getElementById(`input-${userId}`);
+            if (inputElement.value === 'remove') {
+                const userDoc = doc(db, "users", userId);
+                try {
+                    await deleteDoc(userDoc);
+                    inputElement.value = ''; // Reset input sau khi xóa
+                } catch (error) {
+                    console.error("Lỗi khi xóa người dùng: ", error);
+                }
+            } else {
+                alert("Vui lòng nhập 'remove' để xác nhận xóa!");
             }
         };
     </script>

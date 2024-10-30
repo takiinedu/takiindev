@@ -66,7 +66,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         const app = initializeApp({
             apiKey: "AIzaSyDUPrrqrwxKWUTN1MD8gFBZrWVceem_akg",
@@ -81,14 +81,12 @@
 
         const db = getFirestore(app);
 
-        async function fetchUsers() {
+        // Hàm hiển thị danh sách người dùng
+        function displayUsers(userSnapshot) {
             const userListElement = document.getElementById("userList");
             const userCountElement = document.getElementById("userCount");
-            const userCollection = collection(db, "users");
-            const userSnapshot = await getDocs(userCollection);
-
-            let userCount = 0;
             userListElement.innerHTML = ''; // Xóa danh sách hiện tại
+            let userCount = 0;
 
             userSnapshot.forEach(doc => {
                 const userData = doc.data();
@@ -108,20 +106,20 @@
             userCountElement.textContent = `Số thành viên đã nhập: ${userCount}`;
         }
 
+        // Theo dõi thay đổi trong bộ sưu tập users
+        onSnapshot(collection(db, "users"), (snapshot) => {
+            displayUsers(snapshot.docs);
+        });
+
         // Định nghĩa hàm deleteUser ở cấp độ toàn cục
         window.deleteUser = async function(userId) {
             const userDoc = doc(db, "users", userId);
             try {
                 await deleteDoc(userDoc);
-                fetchUsers(); // Cập nhật danh sách người dùng
             } catch (error) {
                 console.error("Lỗi khi xóa người dùng: ", error);
             }
         };
-
-        fetchUsers().catch(error => {
-            console.error("Lỗi khi lấy danh sách thành viên: ", error);
-        });
     </script>
 </head>
 <body>

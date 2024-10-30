@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách người dùng</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #userList {
+            list-style-type: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #userList li {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #userList li:last-child {
+            border-bottom: none;
+        }
+
+        #userList li:hover {
+            background-color: #f1f1f1;
+        }
+
+        .user-info {
+            margin: 5px 0;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const app = initializeApp({
+            apiKey: "AIzaSyDUPrrqrwxKWUTN1MD8gFBZrWVceem_akg",
+            authDomain: "login-c082a.firebaseapp.com",
+            databaseURL: "https://login-c082a-default-rtdb.firebaseio.com",
+            projectId: "login-c082a",
+            storageBucket: "login-c082a.appspot.com",
+            messagingSenderId: "782243237767",
+            appId: "1:782243237767:web:6fd691f122bdd840b38d22",
+            measurementId: "G-MLY60106H5"
+        });
+
+        const db = getFirestore(app);
+
+        // Lấy danh sách người dùng từ Firestore
+        async function fetchUsers() {
+            const userListElement = document.getElementById("userList");
+            const userCollection = collection(db, "users");
+            const userSnapshot = await getDocs(userCollection);
+
+            userSnapshot.forEach(doc => {
+                const userData = doc.data();
+                const listItem = document.createElement("li");
+
+                listItem.innerHTML = `
+                    <div class="user-info"><span class="label">Họ và tên:</span> ${userData.fullname}</div>
+                    <div class="user-info"><span class="label">Email:</span> ${userData.email}</div>
+                    <div class="user-info"><span class="label">Mã sv:</span> ${userData.studentId}</div>
+                    <div class="user-info"><span class="label">Vị trí:</span> ${userData.track}</div>
+                `;
+                userListElement.appendChild(listItem);
+            });
+        }
+
+        // Gọi hàm để hiển thị người dùng
+        fetchUsers().catch(error => {
+            console.error("Lỗi khi lấy danh sách người dùng: ", error);
+        });
+    </script>
+</head>
+<body>
+    <h1>Danh sách người dùng</h1>
+    <ul id="userList"></ul>
+</body>
+</html>

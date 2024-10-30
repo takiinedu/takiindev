@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách người dùng</title>
+    <title>Danh sách thành viên</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -96,12 +96,12 @@
             });
 
             // Cập nhật số lượng người dùng
-            userCountElement.textContent = `Số người dùng đã nhập: ${userCount}`;
+            userCountElement.textContent = `Số thành viên đã nhập: ${userCount}`;
         }
 
         // Gọi hàm để hiển thị người dùng
         fetchUsers().catch(error => {
-            console.error("Lỗi khi lấy danh sách người dùng: ", error);
+            console.error("Lỗi khi lấy danh sách thành viên: ", error);
         });
     </script>
 </head>
